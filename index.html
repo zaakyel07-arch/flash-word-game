@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Communication - Flash Word Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            background-color: #1e293b;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 650px;
+        }
+        h1 {
+            font-size: 1.7rem;
+            margin-bottom: 0.8rem;
+            color: #38bdf8;
+        }
+        p.subtitle {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .level-badge {
+            display: inline-block;
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 1.2rem;
+            background-color: #334155;
+        }
+        .easy { color: #4ade80; border: 1px solid #4ade80; }
+        .medium { color: #facc15; border: 1px solid #facc15; }
+        .hard { color: #f87171; border: 1px solid #f87171; }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            color: #94a3b8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.8rem;
+        }
+        .word-box {
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0f172a;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: clamp(1.6rem, 5.5vw, 3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #facc15;
+            border: 2px solid #334155;
+            padding: 0 1rem;
+            word-break: break-word;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1.2rem;
+            text-align: center;
+            border-radius: 8px;
+            border: 2px solid #475569;
+            background-color: #334155;
+            color: white;
+            margin-bottom: 1rem;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #38bdf8;
+        }
+        button {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 0.9rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            max-width: 280px;
+            margin: 0.3rem;
+        }
+        button:hover {
+            background-color: #0284c7;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.2rem;
+            margin-top: 1.5rem;
+        }
+        .btn-secondary:hover {
+            background-color: #334155;
+            color: white;
+        }
+        .feedback {
+            margin-top: 1.2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 2rem;
+        }
+        .correct { color: #4ade80; }
+        .wrong { color: #f87171; }
+        .hidden { display: none; }
+
+        /* Sonuç Kartı Tasarımı */
+        .result-card {
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            border: 2px solid #38bdf8;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            margin-top: 1rem;
+        }
+        .result-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #f8fafc;
+            margin: 0.5rem 0;
+        }
+        .result-score {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #4ade80;
+            margin: 1rem 0;
+        }
+        .result-time {
+            font-size: 1.1rem;
+            color: #facc15;
+            margin-bottom: 1rem;
+        }
+        .result-note {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            border-top: 1px solid #334155;
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 1. GİRİŞ EKRANI -->
+    <div id="startScreen">
+        <h1>Flash Word Challenge</h1>
+        <p class="subtitle">Business Communication Vocabulary Game</p>
+        <input type="text" id="playerNameInput" placeholder="Enter your Name & Surname..." autocomplete="off">
+        <br>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- 2. OYUN EKRANI -->
+    <div id="gameScreen" class="hidden">
+        <h1 id="playerHeader">Player</h1>
+        <div id="levelBadge" class="level-badge easy">Level 1: Easy (0.7s)</div>
+        
+        <div class="stats">
+            <span id="progress">Word: 1 / 50</span>
+            <span id="score">Score: 0</span>
+        </div>
+
+        <div class="word-box" id="wordDisplay">READY?</div>
+
+        <div id="controls">
+            <button id="showBtn" onclick="flashWord()">Show Word</button>
+            
+            <div id="inputSection" class="hidden">
+                <input type="text" id="userInput" placeholder="Type what you saw..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <button onclick="checkAnswer()">Check Answer</button>
+            </div>
+
+            <button id="nextBtn" class="hidden" onclick="nextWord()">Next Word →</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <!-- Sunum süresi dolduğunda herkesin bitirebilmesi için erken bitirme butonu -->
+        <button class="btn-secondary" onclick="finishGame()">Finish & Show My Score</button>
+    </div>
+
+    <!-- 3. FİNAL SONUÇ KARTI -->
+    <div id="resultScreen" class="hidden">
+        <h1>🏆 Final Result</h1>
+        <div class="result-card">
+            <div style="color: #94a3b8; font-size: 0.9rem;">PLAYER</div>
+            <div class="result-name" id="finalName">-</div>
+            <div class="result-score" id="finalScore">0 / 50</div>
+            <div class="result-time" id="finalTime">Time: 0s</div>
+            <div class="result-note">Show this screen to the presenter to claim your rank!</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const words = [
+        // LEVEL 1: EASY (1-15) - 0.7s
+        "Ads", "Wiki", "Chatbot", "Gadgets", "Operate",
+        "Podcast", "Promote", "Recruit", "Features", "Literacy",
+        "Literate", "Remotely", "Teamwork", "Decisions", "Engineers",
+
+        // LEVEL 2: MEDIUM (16-35) - 0.5s
+        "Essential", "Automation", "Confidence", "AI Literacy", "Assessments",
+        "Collaborate", "Confidently", "Convergence", "Interactive", "Remote Work",
+        "Adaptability", "File Sharing", "Social Skills", "Tech Anxiety", "Cloud Storage",
+        "Collaborative", "Digital Tools", "Ethical Skills", "Screen Sharing", "Team Messaging",
+
+        // LEVEL 3: HARD (36-50) - 0.35s
+        "Online Learning", "Virtual Meeting", "Customer Service", "Digital Literacy", "Technical Skills",
+        "Critical Thinking", "Lifelong Learning", "Multifunctional", "Outdated Software", "Continuous Learning",
+        "Presence Technology", "Videoconferencing", "Digital Convergence", "Business Communication", "Workplace Productivity"
+    ];
+
+    let playerName = "";
+    let currentIndex = 0;
+    let score = 0;
+    let startTime = null;
+
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    
+    const playerNameInput = document.getElementById("playerNameInput");
+    const playerHeader = document.getElementById("playerHeader");
+    const wordDisplay = document.getElementById("wordDisplay");
+    const showBtn = document.getElementById("showBtn");
+    const inputSection = document.getElementById("inputSection");
+    const userInput = document.getElementById("userInput");
+    const nextBtn = document.getElementById("nextBtn");
+    const feedback = document.getElementById("feedback");
+    const progress = document.getElementById("progress");
+    const scoreDisplay = document.getElementById("score");
+    const levelBadge = document.getElementById("levelBadge");
+
+    playerNameInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") startGame();
+    });
+
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") checkAnswer();
+    });
+
+    function startGame() {
+        const nameVal = playerNameInput.value.trim();
+        if (nameVal === "") {
+            alert("Please enter your name first!");
+            return;
+        }
+        playerName = nameVal;
+        playerHeader.textContent = playerName;
+        startTime = Date.now();
+
+        startScreen.classList.add("hidden");
+        gameScreen.classList.remove("hidden");
+    }
+
+    function getDifficultySettings(index) {
+        if (index < 15) {
+            return { duration: 700, label: "Level 1: Easy (0.7s)", className: "easy" };
+        } else if (index < 35) {
+            return { duration: 500, label: "Level 2: Medium (0.5s)", className: "medium" };
+        } else {
+            return { duration: 350, label: "Level 3: Hard (0.35s)", className: "hard" };
+        }
+    }
+
+    function updateLevelUI() {
+        const settings = getDifficultySettings(currentIndex);
+        levelBadge.textContent = settings.label;
+        levelBadge.className = `level-badge ${settings.className}`;
+    }
+
+    function flashWord() {
+        const settings = getDifficultySettings(currentIndex);
+        showBtn.classList.add("hidden");
+        feedback.textContent = "";
+        
+        wordDisplay.textContent = words[currentIndex];
+
+        setTimeout(() => {
+            wordDisplay.textContent = "???";
+            inputSection.classList.remove("hidden");
+            userInput.value = "";
+            userInput.focus();
+        }, settings.duration);
+    }
+
+    function checkAnswer() {
+        const guess = userInput.value.trim().replace(/\s+/g, ' ').toLowerCase();
+        const actual = words[currentIndex].toLowerCase();
+
+        if (guess === "") return;
+
+        inputSection.classList.add("hidden");
+        wordDisplay.textContent = words[currentIndex];
+
+        if (guess === actual) {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            feedback.innerHTML = `<span class="correct">✓ Correct!</span>`;
+        } else {
+            feedback.innerHTML = `<span class="wrong">✗ Wrong!</span> (Correct: ${words[currentIndex]})`;
+        }
+
+        if (currentIndex < words.length - 1) {
+            nextBtn.classList.remove("hidden");
+        } else {
+            setTimeout(finishGame, 1200);
+        }
+    }
+
+    function nextWord() {
+        currentIndex++;
+        progress.textContent = `Word: ${currentIndex + 1} / ${words.length}`;
+        wordDisplay.textContent = "READY?";
+        feedback.textContent = "";
+        nextBtn.classList.add("hidden");
+        showBtn.classList.remove("hidden");
+        updateLevelUI();
+    }
+
+    function finishGame() {
+        const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const formattedTime = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+
+        gameScreen.classList.add("hidden");
+        resultScreen.classList.remove("hidden");
+
+        document.getElementById("finalName").textContent = playerName;
+        document.getElementById("finalScore").textContent = `${score} / ${words.length}`;
+        document.getElementById("finalTime").textContent = `Total Time: ${formattedTime}`;
+    }
+</script>
+
+</body>
+</html>
